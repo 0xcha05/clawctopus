@@ -67,6 +67,8 @@ const BASE_METHODS = [
   "node.invoke",
   "node.invoke.result",
   "node.event",
+  "tentacle.list",
+  "tentacle.shell",
   "cron.list",
   "cron.status",
   "cron.add",

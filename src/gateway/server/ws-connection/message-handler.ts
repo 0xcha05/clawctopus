@@ -888,9 +888,15 @@ export function attachGatewayWsMessageHandler(params: {
         setHandshakeState("connected");
         if (role === "node") {
           const context = buildRequestContext();
-          const nodeSession = context.nodeRegistry.register(nextClient, {
-            remoteIp: reportedClientIp,
-          });
+          const isTentacle = connectParams.client.mode === "tentacle";
+          if (isTentacle) {
+            context.tentacleRegistry.register(nextClient, {
+              remoteIp: reportedClientIp,
+            });
+          } else {
+            const nodeSession = context.nodeRegistry.register(nextClient, {
+              remoteIp: reportedClientIp,
+            });
           const instanceIdRaw = connectParams.client.instanceId;
           const instanceId = typeof instanceIdRaw === "string" ? instanceIdRaw.trim() : "";
           const nodeIdsForPairing = new Set<string>([nodeSession.nodeId]);
@@ -934,6 +940,7 @@ export function attachGatewayWsMessageHandler(params: {
                 `voicewake snapshot failed for ${nodeSession.nodeId}: ${formatForLog(err)}`,
               ),
             );
+          }
         }
 
         logWs("out", "hello-ok", {

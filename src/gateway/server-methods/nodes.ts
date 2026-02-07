@@ -471,7 +471,7 @@ export const nodeHandlers: GatewayRequestHandlers = {
       respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "nodeId mismatch"));
       return;
     }
-    const ok = context.nodeRegistry.handleInvokeResult({
+    let ok = context.nodeRegistry.handleInvokeResult({
       id: p.id,
       nodeId: p.nodeId,
       ok: p.ok,
@@ -479,6 +479,16 @@ export const nodeHandlers: GatewayRequestHandlers = {
       payloadJSON: p.payloadJSON ?? null,
       error: p.error ?? null,
     });
+    // If nodeRegistry didn't handle it, try tentacleRegistry
+    if (!ok) {
+      ok = context.tentacleRegistry.handleInvokeResult({
+        id: p.id,
+        nodeId: p.nodeId,
+        ok: p.ok,
+        payloadJSON: p.payloadJSON ?? null,
+        error: p.error ?? null,
+      });
+    }
     if (!ok) {
       // Late-arriving results (after invoke timeout) are expected and harmless.
       // Return success instead of error to reduce log noise; client can discard.

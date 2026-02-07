@@ -196,9 +196,14 @@ export function attachGatewayWsConnectionHandler(params: {
       }
       if (client?.connect?.role === "node") {
         const context = buildRequestContext();
-        const nodeId = context.nodeRegistry.unregister(connId);
-        if (nodeId) {
-          context.nodeUnsubscribeAll(nodeId);
+        const isTentacle = client.connect.client?.mode === "tentacle";
+        if (isTentacle) {
+          context.tentacleRegistry.unregister(connId);
+        } else {
+          const nodeId = context.nodeRegistry.unregister(connId);
+          if (nodeId) {
+            context.nodeUnsubscribeAll(nodeId);
+          }
         }
       }
       logWs("out", "close", {

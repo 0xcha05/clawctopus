@@ -6,6 +6,7 @@ import type { createSubsystemLogger } from "../../logging/subsystem.js";
 import type { WizardSession } from "../../wizard/session.js";
 import type { ChatAbortControllerEntry } from "../chat-abort.js";
 import type { NodeRegistry } from "../node-registry.js";
+import type { TentacleRegistry } from "../../tentacles/registry.js";
 import type { ConnectParams, ErrorShape, RequestFrame } from "../protocol/index.js";
 import type { ChannelRuntimeSnapshot } from "../server-channels.js";
 import type { DedupeEntry } from "../server-shared.js";
@@ -59,6 +60,7 @@ export type GatewayRequestContext = {
   nodeUnsubscribeAll: (nodeId: string) => void;
   hasConnectedMobileNode: () => boolean;
   nodeRegistry: NodeRegistry;
+  tentacleRegistry: TentacleRegistry;
   agentRunSeq: Map<string, number>;
   chatAbortControllers: Map<string, ChatAbortControllerEntry>;
   chatAbortedRuns: Map<string, number>;

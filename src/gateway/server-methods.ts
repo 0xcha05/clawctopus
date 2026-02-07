@@ -16,6 +16,7 @@ import { modelsHandlers } from "./server-methods/models.js";
 import { nodeHandlers } from "./server-methods/nodes.js";
 import { sendHandlers } from "./server-methods/send.js";
 import { sessionsHandlers } from "./server-methods/sessions.js";
+import { tentacleHandlers } from "./server-methods/tentacles.js";
 import { skillsHandlers } from "./server-methods/skills.js";
 import { systemHandlers } from "./server-methods/system.js";
 import { talkHandlers } from "./server-methods/talk.js";
@@ -72,6 +73,7 @@ const READ_METHODS = new Set([
   "node.list",
   "node.describe",
   "chat.history",
+  "tentacle.list",
 ]);
 const WRITE_METHODS = new Set([
   "send",
@@ -88,6 +90,7 @@ const WRITE_METHODS = new Set([
   "chat.send",
   "chat.abort",
   "browser.request",
+  "tentacle.shell",
 ]);
 
 function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["client"]) {
@@ -185,6 +188,7 @@ export const coreGatewayHandlers: GatewayRequestHandlers = {
   ...agentHandlers,
   ...agentsHandlers,
   ...browserHandlers,
+  ...tentacleHandlers,
 };
 
 export async function handleGatewayRequest(
