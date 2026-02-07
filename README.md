@@ -112,6 +112,30 @@ run "uptime" on tentacle prod-server
 
 That's it. Your AI assistant now reaches everywhere.
 
+### Architecture: OpenClaw → Clawctopus
+
+**Before (OpenClaw):**
+```
+Channels → Gateway → Pi Agent → Tools
+                  ↓
+            Nodes (macOS/iOS/Android)
+```
+
+**After (Clawctopus):**
+```
+Channels → Gateway → Pi Agent → Tools
+                  ↓
+            ┌─────┴──────┐
+            │            │
+         Nodes      Tentacles (remote machines)
+      (local)       ↓
+                 ┌──┴───┬────────┬─────────┐
+                 │      │        │         │
+              Server1 Server2 Server3  Server-N
+```
+
+OpenClaw controls your local devices. **Clawctopus controls everything.**
+
 ---
 
 Preferred setup: run the onboarding wizard (`openclaw onboard`). It walks through gateway, workspace, channels, and skills. The CLI wizard is the recommended path and works on **macOS, Linux, and Windows (via WSL2; strongly recommended)**.
