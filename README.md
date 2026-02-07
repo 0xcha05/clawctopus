@@ -1,4 +1,4 @@
-# 🐙 Clawctopus — OpenClaw + Remote Execution
+# 🐙 Clawctopus — OpenClaw + Distributed Tentacles
 
 <p align="center">
     <picture>
@@ -8,11 +8,11 @@
 </p>
 
 <p align="center">
-  <strong>EXFOLIATE! EXFOLIATE! (now on remote machines!)</strong>
+  <strong>EXFOLIATE! EXFOLIATE! (now across all your servers!)</strong>
 </p>
 
 <p align="center">
-  <em>A fork of <a href="https://github.com/openclaw/openclaw">OpenClaw</a> with remote command execution via lightweight tentacle daemons</em>
+  <em>A fork of <a href="https://github.com/openclaw/openclaw">OpenClaw</a> that reaches everywhere</em>
 </p>
 
 <p align="center">
@@ -26,97 +26,91 @@
 
 It has **everything OpenClaw has**: answers on all your channels (WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, iMessage, Microsoft Teams, WebChat), plus extension channels like BlueBubbles, Matrix, Zalo, and Zalo Personal. It can speak and listen on macOS/iOS/Android, and can render a live Canvas you control.
 
-**What Clawctopus adds**: **Remote command execution** via lightweight "tentacle" daemons. Deploy tentacles on remote machines and control them through your AI assistant.
+**What Clawctopus adds**: **Distributed tentacles** — lightweight daemons you deploy on any machine. Your AI assistant can now reach across all your servers, workstations, and build machines.
 
-If you want a personal, single-user assistant that feels local, fast, and always-on, **and can reach across the internet to manage remote machines**, this is it.
+If you want a personal assistant that manages your entire infrastructure through chat, this is it.
 
 [Website](https://openclaw.ai) · [Docs](https://docs.openclaw.ai) · [DeepWiki](https://deepwiki.com/openclaw/openclaw) · [Getting Started](https://docs.openclaw.ai/start/getting-started) · [Updating](https://docs.openclaw.ai/install/updating) · [Showcase](https://docs.openclaw.ai/start/showcase) · [FAQ](https://docs.openclaw.ai/start/faq) · [Wizard](https://docs.openclaw.ai/start/wizard) · [Nix](https://github.com/openclaw/nix-clawdbot) · [Docker](https://docs.openclaw.ai/install/docker) · [Discord](https://discord.gg/clawd)
 
 ---
 
-## 🐙 What Clawctopus Adds
+## 🐙 What You Can Do With Tentacles
 
-**Clawctopus = OpenClaw + Tentacles**
+**Clawctopus = OpenClaw + Tentacles everywhere**
 
-### Remote Command Execution
+### For Indie Hackers
 
-Deploy lightweight "tentacle" daemons on remote machines and control them through your AI assistant. Perfect for:
-- Running commands on remote servers
-- Managing infrastructure across multiple machines
-- Automating deployments from natural language
-- Monitoring and maintaining remote systems
+**"Deploy my app to production"**
+```
+You: deploy the new landing page
+AI: Running on prod-server: git pull && npm install && pm2 restart app
+AI: ✅ Deployed. Your site is live.
+```
 
-### The Tentacle Package
+**"Check if my cron jobs are running"**
+```
+You: are my backup jobs running on the backup server?
+AI: Checking... Yes, last backup completed 2 hours ago. 47GB uploaded.
+```
 
-A minimal daemon (`@openclaw/tentacle`) that:
-- Connects to your Gateway via WebSocket
-- Authenticates with a registration key
-- Executes shell commands on demand
-- Auto-reconnects with exponential backoff
-- Runs anywhere Node.js runs
+**"Grab that file from my old server"**
+```
+You: get the customer list from the old analytics server and move it to prod
+AI: Downloaded customers.csv from analytics-server
+AI: Uploaded to prod-server at /data/customers.csv
+AI: ✅ Done. 15,847 rows.
+```
 
-### Quick Tentacle Setup
+### For Work
 
-**On your remote machine:**
+**"Ship this hotfix across all staging servers"**
+```
+You: apply the auth hotfix to all staging servers
+AI: Deployed to staging-us, staging-eu, staging-asia
+AI: All services restarted. Monitoring...
+```
+
+**"Find out which server is using all the disk"**
+```
+You: check disk usage on all my servers
+AI:
+- prod-1: 45% used
+- prod-2: 89% used ⚠️
+- worker-1: 23% used
+AI: prod-2 needs attention. Want me to clear old logs?
+```
+
+### For Everyday
+
+**"Restart my Plex server"**
+```
+You: plex isn't responding, restart it
+AI: Running on media-server: systemctl restart plex
+AI: ✅ Plex is back up.
+```
+
+**"Download this YouTube video to my NAS"**
+```
+You: download [url] to my NAS in 4K
+AI: Downloading to nas-server: /media/videos/
+AI: ✅ Downloaded. 3.2GB, ready to watch.
+```
+
+### Quick Setup
+
+**On any machine you want to control:**
 ```bash
 npm install -g @openclaw/tentacle
-
-clawctopus-tentacle run \
-  --gateway ws://your-gateway:18789 \
-  --key your-registration-key \
-  --name production-server
+clawctopus-tentacle run --gateway ws://your-gateway:18789 --key your-token --name prod-server
 ```
 
-**From your AI assistant:**
+**From any channel (WhatsApp, Telegram, Slack, etc.):**
 ```
 list tentacles
-run "df -h" on tentacle production-server
-run "git pull && npm install && pm2 restart app" on tentacle production-server
+run "uptime" on tentacle prod-server
 ```
 
-### Architecture: OpenClaw → Clawctopus
-
-**Before (OpenClaw):**
-```
-Channels → Gateway → Pi Agent → Tools
-                  ↓
-            Nodes (macOS/iOS/Android)
-```
-
-**After (Clawctopus):**
-```
-Channels → Gateway → Pi Agent → Tools
-                  ↓
-            ┌─────┴──────┐
-            │            │
-         Nodes      Tentacles (remote machines)
-      (local)       ↓
-                 ┌──┴───┬────────┬─────────┐
-                 │      │        │         │
-              Server1 Server2 Server3  Server-N
-```
-
-### What's Different from OpenClaw Nodes?
-
-| Feature | OpenClaw Nodes | Clawctopus Tentacles |
-|---------|----------------|----------------------|
-| **Purpose** | Local companion apps (macOS/iOS/Android) | Remote command execution |
-| **Location** | Same network, local devices | Anywhere on internet |
-| **Features** | Camera, screen recording, notifications, canvas | Shell commands (Phase 1) |
-| **Setup** | App install + pairing | npm + daemon |
-| **Use Case** | Enhance local assistant capabilities | Manage remote infrastructure |
-
-### Implementation
-
-- **~800 LOC** added to OpenClaw
-- **1 new package**: `@openclaw/tentacle`
-- **Minimal changes**: Reuses existing node infrastructure
-- **Clean separation**: Tentacle package is standalone
-
-**Phase 1 (Complete):** Shell command execution
-**Phase 2 (Future):** File operations, browser control via Playwright
-
-See [CLAWCTOPUS_IMPLEMENTATION.md](CLAWCTOPUS_IMPLEMENTATION.md) for full technical details.
+That's it. Your AI assistant now reaches everywhere.
 
 ---
 
@@ -223,7 +217,7 @@ Run `openclaw doctor` to surface risky/misconfigured DM policies.
 
 ## Highlights
 
-- **🐙 [Remote Tentacles](#-what-clawctopus-adds)** — Deploy lightweight daemons on remote machines for command execution over the internet.
+- **🐙 [Distributed Tentacles](#-what-you-can-do-with-tentacles)** — Control all your servers, workstations, and infrastructure through your AI assistant.
 - **[Local-first Gateway](https://docs.openclaw.ai/gateway)** — single control plane for sessions, channels, tools, and events.
 - **[Multi-channel inbox](https://docs.openclaw.ai/channels)** — WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, BlueBubbles (iMessage), iMessage (legacy), Microsoft Teams, Matrix, Zalo, Zalo Personal, WebChat, macOS, iOS/Android.
 - **[Multi-agent routing](https://docs.openclaw.ai/gateway/configuration)** — route inbound channels/accounts/peers to isolated agents (workspaces + per-agent sessions).
@@ -261,12 +255,10 @@ Run `openclaw doctor` to surface risky/misconfigured DM policies.
 
 ### 🐙 Tentacles (Clawctopus)
 
-- **Tentacle daemon**: Lightweight remote execution agent (`@openclaw/tentacle` package) with WebSocket connection, auto-reconnect, and token auth.
-- **Shell execution**: Run commands on remote machines with timeout support, stdout/stderr capture, and exit code reporting.
-- **TentacleRegistry**: Gateway-side connection management following NodeRegistry patterns with invoke/result protocol.
-- **Tentacle tool**: Pi agent tool with `tentacle.list` and `tentacle.shell` actions for discovering and controlling remote machines.
-- **Minimal footprint**: ~800 LOC added to OpenClaw, reusing existing node infrastructure and WebSocket protocol.
-- **Phase 1 (complete)**: Shell commands only. Phase 2 (planned): file operations, browser control.
+- **Distributed control**: Deploy tentacle daemons on any machine (servers, NAS, workstations, VPS) and control them through your AI assistant.
+- **Real use cases**: Deploy apps, check disk space, restart services, download files, manage backups, monitor systems — all through chat.
+- **One-line setup**: `npm install -g @openclaw/tentacle` then run the daemon. That's it.
+- **Works everywhere**: Any channel (WhatsApp, Telegram, Slack, etc.) can control any tentacle. Your entire infrastructure is now in your pocket.
 
 ### Tools + automation
 
@@ -668,27 +660,19 @@ Thanks to all clawtributors:
 
 ## 🐙 About Clawctopus
 
-**Clawctopus** is a fork of [OpenClaw](https://github.com/openclaw/openclaw) that adds remote command execution capabilities via lightweight tentacle daemons.
+**Clawctopus** is a fork of [OpenClaw](https://github.com/openclaw/openclaw) that adds distributed tentacles.
 
-### Differences from OpenClaw
+**What's the same:**
+Everything OpenClaw has — all channels, nodes, tools, canvas, voice, skills, everything.
 
-- **All OpenClaw features included**: Channels, nodes, tools, canvas, voice, everything
-- **New tentacle system**: Deploy daemons on remote machines for shell execution
-- **Minimal changes**: ~800 LOC added, reuses existing infrastructure
-- **Standalone package**: `@openclaw/tentacle` is independently deployable
+**What's new:**
+Tentacles. Deploy lightweight daemons on any machine and control them through your AI assistant.
 
-### Why Fork?
+**Why fork?**
+OpenClaw is amazing for local control. Clawctopus extends that control everywhere — your prod servers, your NAS, your build machines, your VPS fleet. Manage your entire infrastructure through chat.
 
-The tentacle system is a focused extension for remote infrastructure management. This fork maintains OpenClaw's core functionality while adding the ability to control remote machines through your AI assistant.
-
-### Relationship to OpenClaw
-
-- **Upstream**: [openclaw/openclaw](https://github.com/openclaw/openclaw)
-- **Fork**: This repository adds tentacles while keeping all OpenClaw features
-- **License**: MIT (same as OpenClaw)
-- **Contributors**: All OpenClaw contributors are honored above
-
-### Future
-
-We plan to keep Clawctopus in sync with OpenClaw upstream while developing the tentacle system further (Phase 2: file operations, browser control).
+**License & Credits:**
+- MIT (same as OpenClaw)
+- Upstream: [openclaw/openclaw](https://github.com/openclaw/openclaw)
+- All OpenClaw contributors are honored above
 
