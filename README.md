@@ -1,4 +1,4 @@
-# 🦞 OpenClaw — Personal AI Assistant
+# 🐙 Clawctopus — OpenClaw + Remote Execution
 
 <p align="center">
     <picture>
@@ -8,7 +8,11 @@
 </p>
 
 <p align="center">
-  <strong>EXFOLIATE! EXFOLIATE!</strong>
+  <strong>EXFOLIATE! EXFOLIATE! (now on remote machines!)</strong>
+</p>
+
+<p align="center">
+  <em>A fork of <a href="https://github.com/openclaw/openclaw">OpenClaw</a> with remote command execution via lightweight tentacle daemons</em>
 </p>
 
 <p align="center">
@@ -18,12 +22,103 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT License"></a>
 </p>
 
-**OpenClaw** is a _personal AI assistant_ you run on your own devices.
-It answers you on the channels you already use (WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, iMessage, Microsoft Teams, WebChat), plus extension channels like BlueBubbles, Matrix, Zalo, and Zalo Personal. It can speak and listen on macOS/iOS/Android, and can render a live Canvas you control. The Gateway is just the control plane — the product is the assistant.
+**Clawctopus** is a fork of **OpenClaw** — a _personal AI assistant_ you run on your own devices.
 
-If you want a personal, single-user assistant that feels local, fast, and always-on, this is it.
+It has **everything OpenClaw has**: answers on all your channels (WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, iMessage, Microsoft Teams, WebChat), plus extension channels like BlueBubbles, Matrix, Zalo, and Zalo Personal. It can speak and listen on macOS/iOS/Android, and can render a live Canvas you control.
+
+**What Clawctopus adds**: **Remote command execution** via lightweight "tentacle" daemons. Deploy tentacles on remote machines and control them through your AI assistant.
+
+If you want a personal, single-user assistant that feels local, fast, and always-on, **and can reach across the internet to manage remote machines**, this is it.
 
 [Website](https://openclaw.ai) · [Docs](https://docs.openclaw.ai) · [DeepWiki](https://deepwiki.com/openclaw/openclaw) · [Getting Started](https://docs.openclaw.ai/start/getting-started) · [Updating](https://docs.openclaw.ai/install/updating) · [Showcase](https://docs.openclaw.ai/start/showcase) · [FAQ](https://docs.openclaw.ai/start/faq) · [Wizard](https://docs.openclaw.ai/start/wizard) · [Nix](https://github.com/openclaw/nix-clawdbot) · [Docker](https://docs.openclaw.ai/install/docker) · [Discord](https://discord.gg/clawd)
+
+---
+
+## 🐙 What Clawctopus Adds
+
+**Clawctopus = OpenClaw + Tentacles**
+
+### Remote Command Execution
+
+Deploy lightweight "tentacle" daemons on remote machines and control them through your AI assistant. Perfect for:
+- Running commands on remote servers
+- Managing infrastructure across multiple machines
+- Automating deployments from natural language
+- Monitoring and maintaining remote systems
+
+### The Tentacle Package
+
+A minimal daemon (`@openclaw/tentacle`) that:
+- Connects to your Gateway via WebSocket
+- Authenticates with a registration key
+- Executes shell commands on demand
+- Auto-reconnects with exponential backoff
+- Runs anywhere Node.js runs
+
+### Quick Tentacle Setup
+
+**On your remote machine:**
+```bash
+npm install -g @openclaw/tentacle
+
+clawctopus-tentacle run \
+  --gateway ws://your-gateway:18789 \
+  --key your-registration-key \
+  --name production-server
+```
+
+**From your AI assistant:**
+```
+list tentacles
+run "df -h" on tentacle production-server
+run "git pull && npm install && pm2 restart app" on tentacle production-server
+```
+
+### Architecture: OpenClaw → Clawctopus
+
+**Before (OpenClaw):**
+```
+Channels → Gateway → Pi Agent → Tools
+                  ↓
+            Nodes (macOS/iOS/Android)
+```
+
+**After (Clawctopus):**
+```
+Channels → Gateway → Pi Agent → Tools
+                  ↓
+            ┌─────┴──────┐
+            │            │
+         Nodes      Tentacles (remote machines)
+      (local)       ↓
+                 ┌──┴───┬────────┬─────────┐
+                 │      │        │         │
+              Server1 Server2 Server3  Server-N
+```
+
+### What's Different from OpenClaw Nodes?
+
+| Feature | OpenClaw Nodes | Clawctopus Tentacles |
+|---------|----------------|----------------------|
+| **Purpose** | Local companion apps (macOS/iOS/Android) | Remote command execution |
+| **Location** | Same network, local devices | Anywhere on internet |
+| **Features** | Camera, screen recording, notifications, canvas | Shell commands (Phase 1) |
+| **Setup** | App install + pairing | npm + daemon |
+| **Use Case** | Enhance local assistant capabilities | Manage remote infrastructure |
+
+### Implementation
+
+- **~800 LOC** added to OpenClaw
+- **1 new package**: `@openclaw/tentacle`
+- **Minimal changes**: Reuses existing node infrastructure
+- **Clean separation**: Tentacle package is standalone
+
+**Phase 1 (Complete):** Shell command execution
+**Phase 2 (Future):** File operations, browser control via Playwright
+
+See [CLAWCTOPUS_IMPLEMENTATION.md](CLAWCTOPUS_IMPLEMENTATION.md) for full technical details.
+
+---
 
 Preferred setup: run the onboarding wizard (`openclaw onboard`). It walks through gateway, workspace, channels, and skills. The CLI wizard is the recommended path and works on **macOS, Linux, and Windows (via WSL2; strongly recommended)**.
 Works with npm, pnpm, or bun.
@@ -66,10 +161,19 @@ openclaw onboard --install-daemon
 openclaw gateway --port 18789 --verbose
 
 # Send a message
-openclaw message send --to +1234567890 --message "Hello from OpenClaw"
+openclaw message send --to +1234567890 --message "Hello from Clawctopus"
 
 # Talk to the assistant (optionally deliver back to any connected channel: WhatsApp/Telegram/Slack/Discord/Google Chat/Signal/iMessage/BlueBubbles/Microsoft Teams/Matrix/Zalo/Zalo Personal/WebChat)
 openclaw agent --message "Ship checklist" --thinking high
+
+# 🐙 Deploy a tentacle on a remote machine
+# On remote machine:
+npm install -g @openclaw/tentacle
+clawctopus-tentacle run --gateway ws://your-gateway:18789 --key your-token --name prod-server
+
+# From your assistant:
+openclaw agent --message "list tentacles"
+openclaw agent --message "run 'uptime' on tentacle prod-server"
 ```
 
 Upgrading? [Updating guide](https://docs.openclaw.ai/install/updating) (and run `openclaw doctor`).
@@ -119,12 +223,13 @@ Run `openclaw doctor` to surface risky/misconfigured DM policies.
 
 ## Highlights
 
+- **🐙 [Remote Tentacles](#-what-clawctopus-adds)** — Deploy lightweight daemons on remote machines for command execution over the internet.
 - **[Local-first Gateway](https://docs.openclaw.ai/gateway)** — single control plane for sessions, channels, tools, and events.
 - **[Multi-channel inbox](https://docs.openclaw.ai/channels)** — WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, BlueBubbles (iMessage), iMessage (legacy), Microsoft Teams, Matrix, Zalo, Zalo Personal, WebChat, macOS, iOS/Android.
 - **[Multi-agent routing](https://docs.openclaw.ai/gateway/configuration)** — route inbound channels/accounts/peers to isolated agents (workspaces + per-agent sessions).
 - **[Voice Wake](https://docs.openclaw.ai/nodes/voicewake) + [Talk Mode](https://docs.openclaw.ai/nodes/talk)** — always-on speech for macOS/iOS/Android with ElevenLabs.
 - **[Live Canvas](https://docs.openclaw.ai/platforms/mac/canvas)** — agent-driven visual workspace with [A2UI](https://docs.openclaw.ai/platforms/mac/canvas#canvas-a2ui).
-- **[First-class tools](https://docs.openclaw.ai/tools)** — browser, canvas, nodes, cron, sessions, and Discord/Slack actions.
+- **[First-class tools](https://docs.openclaw.ai/tools)** — browser, canvas, nodes, tentacles, cron, sessions, and Discord/Slack actions.
 - **[Companion apps](https://docs.openclaw.ai/platforms/macos)** — macOS menu bar app + iOS/Android [nodes](https://docs.openclaw.ai/nodes).
 - **[Onboarding](https://docs.openclaw.ai/start/wizard) + [skills](https://docs.openclaw.ai/tools/skills)** — wizard-driven setup with bundled/managed/workspace skills.
 
@@ -154,11 +259,21 @@ Run `openclaw doctor` to surface risky/misconfigured DM policies.
 - [Android node](https://docs.openclaw.ai/platforms/android): [Canvas](https://docs.openclaw.ai/platforms/mac/canvas), [Talk Mode](https://docs.openclaw.ai/nodes/talk), camera, screen recording, optional SMS.
 - [macOS node mode](https://docs.openclaw.ai/nodes): system.run/notify + canvas/camera exposure.
 
+### 🐙 Tentacles (Clawctopus)
+
+- **Tentacle daemon**: Lightweight remote execution agent (`@openclaw/tentacle` package) with WebSocket connection, auto-reconnect, and token auth.
+- **Shell execution**: Run commands on remote machines with timeout support, stdout/stderr capture, and exit code reporting.
+- **TentacleRegistry**: Gateway-side connection management following NodeRegistry patterns with invoke/result protocol.
+- **Tentacle tool**: Pi agent tool with `tentacle.list` and `tentacle.shell` actions for discovering and controlling remote machines.
+- **Minimal footprint**: ~800 LOC added to OpenClaw, reusing existing node infrastructure and WebSocket protocol.
+- **Phase 1 (complete)**: Shell commands only. Phase 2 (planned): file operations, browser control.
+
 ### Tools + automation
 
 - [Browser control](https://docs.openclaw.ai/tools/browser): dedicated openclaw Chrome/Chromium, snapshots, actions, uploads, profiles.
 - [Canvas](https://docs.openclaw.ai/platforms/mac/canvas): [A2UI](https://docs.openclaw.ai/platforms/mac/canvas#canvas-a2ui) push/reset, eval, snapshot.
 - [Nodes](https://docs.openclaw.ai/nodes): camera snap/clip, screen record, [location.get](https://docs.openclaw.ai/nodes/location-command), notifications.
+- 🐙 **[Tentacles](#-tentacles-clawctopus)**: remote shell execution on distributed machines.
 - [Cron + wakeups](https://docs.openclaw.ai/automation/cron-jobs); [webhooks](https://docs.openclaw.ai/automation/webhook); [Gmail Pub/Sub](https://docs.openclaw.ai/automation/gmail-pubsub).
 - [Skills platform](https://docs.openclaw.ai/tools/skills): bundled, managed, and workspace skills with install gating + UI.
 
@@ -192,7 +307,13 @@ WhatsApp / Telegram / Slack / Discord / Google Chat / Signal / iMessage / BlueBu
                ├─ CLI (openclaw …)
                ├─ WebChat UI
                ├─ macOS app
-               └─ iOS / Android nodes
+               ├─ iOS / Android nodes
+               │
+               └─ 🐙 Tentacles (remote machines)
+                     ├─ production-server
+                     ├─ staging-server
+                     ├─ build-server
+                     └─ monitoring-server
 ```
 
 ## Key subsystems
@@ -542,3 +663,32 @@ Thanks to all clawtributors:
   <a href="https://github.com/carlulsoe"><img src="https://avatars.githubusercontent.com/u/34673973?v=4&s=48" width="48" height="48" alt="carlulsoe" title="carlulsoe"/></a> <a href="https://github.com/search?q=ddyo"><img src="assets/avatar-placeholder.svg" width="48" height="48" alt="ddyo" title="ddyo"/></a> <a href="https://github.com/search?q=Erik"><img src="assets/avatar-placeholder.svg" width="48" height="48" alt="Erik" title="Erik"/></a> <a href="https://github.com/jiulingyun"><img src="https://avatars.githubusercontent.com/u/126459548?v=4&s=48" width="48" height="48" alt="jiulingyun" title="jiulingyun"/></a> <a href="https://github.com/latitudeki5223"><img src="https://avatars.githubusercontent.com/u/119656367?v=4&s=48" width="48" height="48" alt="latitudeki5223" title="latitudeki5223"/></a> <a href="https://github.com/search?q=Manuel%20Maly"><img src="assets/avatar-placeholder.svg" width="48" height="48" alt="Manuel Maly" title="Manuel Maly"/></a> <a href="https://github.com/search?q=Mourad%20Boustani"><img src="assets/avatar-placeholder.svg" width="48" height="48" alt="Mourad Boustani" title="Mourad Boustani"/></a> <a href="https://github.com/odrobnik"><img src="https://avatars.githubusercontent.com/u/333270?v=4&s=48" width="48" height="48" alt="odrobnik" title="odrobnik"/></a> <a href="https://github.com/pcty-nextgen-ios-builder"><img src="assets/avatar-placeholder.svg" width="48" height="48" alt="pcty-nextgen-ios-builder" title="pcty-nextgen-ios-builder"/></a> <a href="https://github.com/search?q=Quentin"><img src="assets/avatar-placeholder.svg" width="48" height="48" alt="Quentin" title="Quentin"/></a>
   <a href="https://github.com/search?q=Randy%20Torres"><img src="assets/avatar-placeholder.svg" width="48" height="48" alt="Randy Torres" title="Randy Torres"/></a> <a href="https://github.com/rhjoh"><img src="https://avatars.githubusercontent.com/u/105699450?v=4&s=48" width="48" height="48" alt="rhjoh" title="rhjoh"/></a> <a href="https://github.com/search?q=Rolf%20Fredheim"><img src="assets/avatar-placeholder.svg" width="48" height="48" alt="Rolf Fredheim" title="Rolf Fredheim"/></a> <a href="https://github.com/ronak-guliani"><img src="https://avatars.githubusercontent.com/u/23518228?v=4&s=48" width="48" height="48" alt="ronak-guliani" title="ronak-guliani"/></a> <a href="https://github.com/search?q=William%20Stock"><img src="assets/avatar-placeholder.svg" width="48" height="48" alt="William Stock" title="William Stock"/></a>
 </p>
+
+---
+
+## 🐙 About Clawctopus
+
+**Clawctopus** is a fork of [OpenClaw](https://github.com/openclaw/openclaw) that adds remote command execution capabilities via lightweight tentacle daemons.
+
+### Differences from OpenClaw
+
+- **All OpenClaw features included**: Channels, nodes, tools, canvas, voice, everything
+- **New tentacle system**: Deploy daemons on remote machines for shell execution
+- **Minimal changes**: ~800 LOC added, reuses existing infrastructure
+- **Standalone package**: `@openclaw/tentacle` is independently deployable
+
+### Why Fork?
+
+The tentacle system is a focused extension for remote infrastructure management. This fork maintains OpenClaw's core functionality while adding the ability to control remote machines through your AI assistant.
+
+### Relationship to OpenClaw
+
+- **Upstream**: [openclaw/openclaw](https://github.com/openclaw/openclaw)
+- **Fork**: This repository adds tentacles while keeping all OpenClaw features
+- **License**: MIT (same as OpenClaw)
+- **Contributors**: All OpenClaw contributors are honored above
+
+### Future
+
+We plan to keep Clawctopus in sync with OpenClaw upstream while developing the tentacle system further (Phase 2: file operations, browser control).
+
